@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ApiViewTest from  '../views/ApiViewTest.vue'
+import LocalityDetailView from '../views/LocalityDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -14,6 +15,12 @@ const router = createRouter({
         path: '/test',
         name: 'test',
         component: ApiViewTest,
+    },
+    {
+        path: '/localities/:id',
+        name: 'locality-detail',
+        component: LocalityDetailView,
+        props: true,
     },
   ],
 })

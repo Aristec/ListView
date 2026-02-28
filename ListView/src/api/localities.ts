@@ -20,3 +20,9 @@ export function getLocalities(params: GetLocalitiesParams = {}) {
     expand: expandCountry ? 'country' : undefined,
   })
 }
+
+export function getLocality(id: number, expandCountry = true) {
+  return apiGet<Locality>(`/localities/${id}/`, {
+    expand: expandCountry ? 'country' : undefined,
+  })
+}
