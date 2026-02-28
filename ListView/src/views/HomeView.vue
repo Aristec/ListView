@@ -1,73 +1,106 @@
 <template>
-  <main class="mx-auto max-w-5xl px-4 py-8 space-y-6">
-    <h1 class="text-2xl font-semibold">Geological Localities</h1>
-
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        
-      <label class="block space-y-1">
-        <span class="text-sm text-gray-600">Search by name</span>
-        <input
-          v-model="search"
-          placeholder="Type a name…"
-          class="w-full max-w-md rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </label>
-
-      <label class="block space-y-1">
-        <span class="text-sm text-gray-600">Per page</span>
-        <select
-          v-model.number="limit"
-          class="w-36 rounded-md border border-gray-300 px-3 py-2 bg-white"
-          @change="setPageSize"
-        >
-          <option :value="10">10</option>
-          <option :value="25">25</option>
-          <option :value="50">50</option>
-          <option :value="100">100</option>
-        </select>
-      </label>
-    </div>
-
-    <div v-if="!loading && !error && totalCount > 0" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <main class="mx-auto max-w-5xl px-4 py-10 space-y-6">
+    <header class="space-y-1">
+      <h1 class="text-3xl font-semibold tracking-tight">Geological Localities</h1>
       <p class="text-sm text-gray-600">
-        Page {{ currentPage }} / {{ totalPages }} • Total: {{ totalCount }}
+        Browse geological localities from the public Geoloogia API.
       </p>
+    </header>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          class="rounded-md border px-3 py-1 text-sm disabled:opacity-50"
-          :disabled="!canPrev"
-          @click="goPrev"
-        >
-          Previous
-        </button>
+    <!-- Controls Card -->
+    <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div class="p-4 sm:p-5 space-y-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <!-- Search -->
+          <label class="block w-full max-w-lg space-y-1">
+            <span class="text-sm font-medium text-gray-700">Search</span>
+            <div class="relative">
+              <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+                🔎
+              </span>
+              <input
+                v-model="search"
+                placeholder="Search by name…"
+                class="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2.5 text-sm shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+              />
+            </div>
+          </label>
 
-        <button
-          type="button"
-          class="rounded-md border px-3 py-1 text-sm disabled:opacity-50"
-          :disabled="!canNext"
-          @click="goNext"
-        >
-          Next
-        </button>
-
-        <div class="flex items-center gap-2 ml-0 sm:ml-3">
-          <span class="text-sm text-gray-600">Go to page</span>
-          <input
-            v-model="pageInput"
-            inputmode="numeric"
-            class="w-20 rounded-md border border-gray-300 px-2 py-1 text-sm"
-            @keydown.enter.prevent="goToPage"
-            @blur="goToPage"
-          />
+          <!-- Per page -->
+          <label class="block space-y-1">
+            <span class="text-sm font-medium text-gray-700">Per page</span>
+            <select
+              v-model.number="limit"
+              class="w-40 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+              @change="setPageSize"
+            >
+              <option :value="10">10</option>
+              <option :value="25">25</option>
+              <option :value="50">50</option>
+              <option :value="100">100</option>
+            </select>
+          </label>
         </div>
-      </div>
-    </div>
 
-    <p v-if="loading" class="text-gray-600">Loading…</p>
-    <p v-else-if="error" class="text-red-700 whitespace-pre-wrap">{{ error }}</p>
-    <LocalityList v-else :items="items" />
+        <!-- Pagination bar -->
+        <div
+          v-if="!loading && !error && totalCount > 0"
+          class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-lg bg-gray-50 px-3 py-2"
+        >
+          <p class="text-sm text-gray-600">
+            Page <span class="font-medium text-gray-900">{{ currentPage }}</span>
+            <span class="text-gray-400">/</span>
+            <span class="font-medium text-gray-900">{{ totalPages }}</span>
+            <span class="text-gray-400">•</span>
+            Total: <span class="font-medium text-gray-900">{{ totalCount }}</span>
+          </p>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm shadow-sm
+                     hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white"
+              :disabled="!canPrev"
+              @click="goPrev"
+            >
+              ← Previous
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm shadow-sm
+                     hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white"
+              :disabled="!canNext"
+              @click="goNext"
+            >
+              Next →
+            </button>
+
+            <div class="flex items-center gap-2 sm:ml-3">
+              <span class="text-sm text-gray-600">Go to</span>
+              <input
+                v-model="pageInput"
+                inputmode="numeric"
+                class="w-20 rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                @keydown.enter.prevent="goToPage"
+                @blur="goToPage"
+              />
+            </div>
+          </div>
+        </div>
+
+        <p v-if="loading" class="text-sm text-gray-600">Loading…</p>
+        <p v-else-if="error" class="text-sm text-red-700 whitespace-pre-wrap">{{ error }}</p>
+      </div>
+    </section>
+
+    <!-- List -->
+    <section class="space-y-3">
+      <LocalityList v-if="!loading && !error" :items="items" />
+    </section>
   </main>
 </template>
 
