@@ -17,5 +17,9 @@ export interface Locality {
   name?: string | null
   name_en?: string | null
   country?: number | Country | null
+
+  latitude?: number | null
+  longitude?: number | null
+
   [key: string]: unknown
 }
