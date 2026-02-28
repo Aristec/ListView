@@ -1,46 +1,79 @@
 <template>
   <main class="container">
-    <header class="top">
-      <h1>Geological Locations</h1>
-      <p class="sub">A list of geological locations.</p>
-    </header>
+    <h1>Geological Localities</h1>
 
-    <section class="panel">
-      <p v-if="loading" class="muted">Loading…</p>
-      <p v-else-if="error" class="error">{{ error }}</p>
-      <LocalityList v-else :items="items" />
-    </section>
+    <label>
+      Search by name:
+      <input v-model="search" placeholder="Type a name…" />
+    </label>
+
+    <p v-if="loading">Loading…</p>
+    <p v-else-if="error">{{ error }}</p>
+    <LocalityList v-else :items="items" />
   </main>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import LocalityList from '../components/LocalityList.vue'
 import { getLocalities } from '../api/localities'
 import type { Locality } from '../api/types'
+import { debounce } from '../utils/debounce'
 
 const items = ref<Locality[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+const search = ref('')
 
-async function load() {
+let requestId = 0
+
+async function load(query: string) {
+  const myId = ++requestId
   loading.value = true
   error.value = null
+
   try {
     const data = await getLocalities({
       limit: 25,
       offset: 0,
+      search: query,
       expandCountry: true,
     })
-    items.value = data.results
+
+    if (myId !== requestId) return
+
+    const q = query.toLowerCase()
+
+    items.value = data.results.filter(loc => {
+      if (!q) return true
+
+      const name = loc.name?.toLowerCase() ?? ''
+      const nameEn = loc.name_en?.toLowerCase() ?? ''
+
+      return name.includes(q) || nameEn.includes(q)
+    })
+
   } catch (e) {
+    if (myId !== requestId) return
     error.value = e instanceof Error ? e.message : 'Unknown error'
   } finally {
-    loading.value = false
+    if (myId === requestId) loading.value = false
   }
 }
 
-onMounted(load)
+const loadDebounced = debounce((q: string) => {
+  load(q)
+}, 350)
+
+onMounted(() => {
+  load('')
+})
+
+watch(search, (newValue) => {
+  const q = newValue.trim()
+  if (q.length > 0 && q.length < 2) return
+  loadDebounced(q)
+})
 </script>
 
 <style scoped>
