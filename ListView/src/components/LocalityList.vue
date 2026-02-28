@@ -9,7 +9,6 @@
       <div>ID</div>
       <div>Country</div>
     </div>
-
     <!-- Rows -->
     <div
       v-for="loc in items"
@@ -33,6 +32,7 @@
       No localities found.
     </p>
   </div>
+
 </template>
 
 <script setup lang="ts">
