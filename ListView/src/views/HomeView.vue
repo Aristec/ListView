@@ -1,10 +1,13 @@
 <template>
-  <main class="container">
-    <h1>Geological Localities</h1>
+  <main class="mx-auto max-w-5xl px-4 py-8 space-y-6">
+    <h1 class="text-2xl font-semibold">Geological Localities</h1>
 
     <label>
-      Search by name:
-      <input v-model="search" placeholder="Type a name…" />
+      <input
+        v-model="search"
+        placeholder="Type a name…"
+        class="mt-1 w-full max-w-md rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
     </label>
 
     <p v-if="loading">Loading…</p>

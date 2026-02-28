@@ -1,31 +1,42 @@
 <template>
-  <div class="list" v-if="items.length">
-    <div class="header">
+  <div>
+    <!-- Desktop Header -->
+    <div
+      v-if="items.length"
+      class="hidden md:grid grid-cols-3 gap-4 px-4 py-3 text-sm font-semibold bg-gray-100 border border-gray-200 rounded-t-lg"
+    >
       <div>Name</div>
       <div>ID</div>
       <div>Country</div>
     </div>
 
-    <div v-for="loc in items" :key="loc.id" class="row">
-      <div class="cell">
+    <!-- Rows -->
+    <div
+      v-for="loc in items"
+      :key="loc.id"
+      class="border border-gray-200 md:border-t-0 md:rounded-none rounded-lg md:rounded-b-none px-4 py-3 md:grid md:grid-cols-3 md:gap-4"
+    >
+      <div class="font-medium">
         {{ loc.name_en ?? loc.name ?? '—' }}
       </div>
 
-      <div class="cell mono">
+      <div class="text-sm text-gray-600 font-mono">
         {{ loc.id }}
       </div>
 
-      <div class="cell">
+      <div class="text-sm">
         {{ countryLabel(loc) }}
       </div>
     </div>
-  </div>
 
-  <p v-else class="muted">No localities found.</p>
+    <p v-if="!items.length" class="text-gray-500 mt-4">
+      No localities found.
+    </p>
+  </div>
 </template>
 
 <script setup lang="ts">
-import type { Country, Locality } from '../api/types'
+import type { Locality, Country } from '../api/types'
 
 defineProps<{
   items: Locality[]
@@ -34,7 +45,7 @@ defineProps<{
 function countryLabel(loc: Locality) {
   const c = loc.country
   if (!c) return '—'
-  if (typeof c === 'number') return `#${c}` // if not expanded
+  if (typeof c === 'number') return `#${c}`
   const country = c as Country
   return country.name_en ?? country.name ?? '—'
 }
